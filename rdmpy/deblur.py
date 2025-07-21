@@ -670,7 +670,7 @@ def blind(
         return recon
 
 
-def ring_wiener(meas, psf_roft, reg=1e-3, device=None ):
+def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     """
     Parameters
     ----------
@@ -698,7 +698,7 @@ def ring_wiener(meas, psf_roft, reg=1e-3, device=None ):
     # compute dr, dtheta
     r_list = np.sqrt(2) * (
         np.linspace(0, (meas.shape[0] / 2), meas.shape[0], endpoint=False, retstep=False)
-        + .5
+        + 5
     )
 
     dr = r_list[1] - r_list[0]
