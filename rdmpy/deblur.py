@@ -669,4 +669,16 @@ def blind(
         return recon
 
 
-def ring_wiener(image, psf_roft, reg=None ):
+def ring_wiener(meas, psf_roft, reg=None ):
+    """
+    Parameters
+    ----------
+    meas : captured measurements
+    psf_roft : LRI modelled PSFs in fourier domain
+    reg : wiener params
+
+    Returns
+    -------
+    Estimation of original image.
+    """
+    
