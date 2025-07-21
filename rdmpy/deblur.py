@@ -683,10 +683,6 @@ def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     -------
     Estimation of original image. 
     """
-    if torch.cuda.is_available():
-        device = torch.device('cuda:0')
-    else:
-        device = torch.device('cpu')
         
     # infer info from the PSF roft
     num_radii = psf_roft.shape[0]
@@ -705,7 +701,7 @@ def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     dtheta = 2 * np.pi / psf_roft.shape[1]
     
     # FFT for measurements
-    meas_fft = fft.rfft(meas_polar, dim=0)
+    meas_fft = fft.rfft(meas_polar, dim=0).to(device)
     
     H = torch.zeros((num_radii, num_radii), dtype=torch.complex64)
     X_fft = torch.zeros((num_angle, num_radii), dtype=torch.complex64)
@@ -713,7 +709,7 @@ def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     
     for index_angle in range(num_angle):
         Y = meas_fft[index_angle, :].to(device)
-        H = psf_roft[:, index_angle, :] + 1j * psf_roft[:, num_angle//2 + index_angle, :]
+        H = (psf_roft[:, index_angle, :] + 1j * psf_roft[:, num_angle//2 + index_angle, :]).to(device)
         H = H * integration_area_list
         
         # linear least-squares solving

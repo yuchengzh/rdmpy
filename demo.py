@@ -28,7 +28,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3" # REPLACE this line according to yo
 # sys.path.insert(0, '../rdmpy/')
 
 import rdmpy
-
+from time import time
 # here are some basics we will need for the demo
 import torch
 import numpy as np
