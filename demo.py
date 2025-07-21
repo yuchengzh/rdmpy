@@ -130,8 +130,7 @@ plt.show()
 # Now that we have a blurry, noisy measurement and the Seidel PSFs from the calibration procedure, we can run our main algorithm Ring deconvolution! 
 # 
 
-#%%
-    
+
 #%%
 
 rd_recon_wiener = rdmpy.ring_wiener(blurred_noisy, psf_data)

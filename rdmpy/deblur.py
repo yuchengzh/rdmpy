@@ -3,8 +3,9 @@ import os
 
 import torch
 import numpy as np
+import torch.fft as fft
 
-from ._src import opt, util
+from ._src import opt, util, polar_transform
 from .calibrate import get_rdm_psfs
 from .dl_models.DeepRD.DeepRD import UNet as DeepRD
 
@@ -681,5 +682,31 @@ def ring_wiener(meas, psf_roft, reg=None ):
     -------
     Estimation of original image.
     """
+    # infer info from the PSF roft
+    num_radii = psf_roft.shape[0]
+    
+    # get meas RoFT
+    meas_polar = polar_transform.img2polar(meas.float(), numRadii=meas.shape[0])
+    
+    # compute dr, dtheta
+    r_list = np.sqrt(2) * (
+        np.linspace(0, (meas.shape[0] / 2), meas.shape[0], endpoint=False, retstep=False)
+        + 0.5
+    )
+
+    dr = r_list[1] - r_list[0]
+    dtheta = 2 * np.pi / psf_roft.shape[1]
+    
+    # FFT for meas
+    meas_fft = fft.rfft(meas_polar, dim=0)
+    
+    for index in range(num_radii):
+        integration_area = r_list[index] * dr * dtheta
+        curr_psf_polar_fft = (
+            psf_roft[index, 0 : psf_roft.shape[1] // 2, :]
+            + 1j * psf_roft[index, psf_roft.shape[1] // 2 :, :]
+        )
+        
+    
     return 0
     

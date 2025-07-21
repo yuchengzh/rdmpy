@@ -5,4 +5,4 @@ from .blur import (
     full,
     sheet_convolve,
 )
-from .deblur import ring_deconvolve, deeprd, deconvolve, blind, sheet_deconvolve
+from .deblur import ring_deconvolve, deeprd, deconvolve, blind, sheet_deconvolve, ring_wiener
