@@ -669,4 +669,4 @@ def blind(
         return recon
 
 
-def 
+def ring_wiener(image, psf_roft, reg=None ):
