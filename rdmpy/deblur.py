@@ -697,15 +697,18 @@ def ring_wiener(meas, psf_roft, reg=None ):
     dr = r_list[1] - r_list[0]
     dtheta = 2 * np.pi / psf_roft.shape[1]
     
-    # FFT for meas
+    # FFT for measurements
     meas_fft = fft.rfft(meas_polar, dim=0)
     
+    H = torch.zeros((num_radii, num_radii), dtype=torch.complex64)
     for index in range(num_radii):
-        integration_area = r_list[index] * dr * dtheta
-        curr_psf_polar_fft = (
-            psf_roft[index, 0 : psf_roft.shape[1] // 2, :]
-            + 1j * psf_roft[index, psf_roft.shape[1] // 2 :, :]
-        )
+        H[:,index] = psf_roft[index, index, :] + 1j* psf_roft[index, psf_roft.shape[1]//2+index, :]
+        
+    #     integration_area = r_list[index] * dr * dtheta
+    #     curr_psf_polar_fft = (
+    #         psf_roft[index, 0 : psf_roft.shape[1] // 2, :]
+    #         + 1j * psf_roft[index, psf_roft.shape[1] // 2 :, :]
+    #     )
         
     
     return 0
