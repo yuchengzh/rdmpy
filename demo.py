@@ -131,11 +131,10 @@ plt.show()
 # 
 
 #%%
-def ring_wiener(obj, psf_roft, device=torch.device("cpu")):
     
 #%%
 
-rd_recon_wiener = rdmpy.deconvolve(blurred_noisy, psf_data)
+rd_recon_wiener = rdmpy.ring_wiener(blurred_noisy, psf_data)
 
 # In[ ]:
 

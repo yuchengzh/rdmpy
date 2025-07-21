@@ -681,4 +681,5 @@ def ring_wiener(meas, psf_roft, reg=None ):
     -------
     Estimation of original image.
     """
+    return 0
     
