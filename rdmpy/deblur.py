@@ -670,7 +670,7 @@ def blind(
         return recon
 
 
-def ring_wiener(meas, psf_roft, reg=None ):
+def ring_wiener(meas, psf_roft, reg=0, device=None ):
     """
     Parameters
     ----------
@@ -682,8 +682,14 @@ def ring_wiener(meas, psf_roft, reg=None ):
     -------
     Estimation of original image.
     """
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+        
     # infer info from the PSF roft
     num_radii = psf_roft.shape[0]
+    num_angle = int(psf_roft.shape[1] / 2)
     
     # get meas RoFT
     meas_polar = polar_transform.img2polar(meas.float(), numRadii=meas.shape[0])
@@ -701,9 +707,32 @@ def ring_wiener(meas, psf_roft, reg=None ):
     meas_fft = fft.rfft(meas_polar, dim=0)
     
     H = torch.zeros((num_radii, num_radii), dtype=torch.complex64)
-    for index in range(num_radii):
-        H[:,index] = psf_roft[index, index, :] + 1j* psf_roft[index, psf_roft.shape[1]//2+index, :]
+    X_fft = torch.zeros((num_angle, num_radii), dtype=torch.complex64)
+    
+    # from time import time
+    t1 = time()
+    reg = 1e-2
+    
+    for index_angle in range(num_angle):
+        Y = meas_fft[index_angle, :].to(device)
+        H = psf_roft[:, index_angle, :] + 1j * psf_roft[:, num_angle//2 + index_angle, :]
         
+        # linear least-squares solving
+        HtH = torch.matmul(H.t(), H)  # Shape: (512, 512)
+        HtY = torch.matmul(H.t(), Y)  # Shape: (512,)
+        I = torch.eye(H.shape[1], device=H.device, dtype=H.dtype)
+        HtH_reg = HtH + reg * I
+                
+        X_fft[index_angle,:] = torch.linalg.solve(HtH_reg, HtY)
+        
+    X = fft.irfft(X_fft, dim=0)
+    img = polar_transform.polar2img(X, meas.shape)
+
+    t2 = time()
+        # print(index_angle)
+        
+        # for index in range(num_radii):
+        #     H[:,index] = psf_roft[index, index_angle, :] + 1j* psf_roft[index, psf_roft.shape[1]//2+index_angle, :]
     #     integration_area = r_list[index] * dr * dtheta
     #     curr_psf_polar_fft = (
     #         psf_roft[index, 0 : psf_roft.shape[1] // 2, :]
