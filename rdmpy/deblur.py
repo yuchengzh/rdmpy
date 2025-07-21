@@ -694,7 +694,7 @@ def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     # compute dr, dtheta
     r_list = np.sqrt(2) * (
         np.linspace(0, (meas.shape[0] / 2), meas.shape[0], endpoint=False, retstep=False)
-        + 5
+        + 0.5
     )
 
     dr = r_list[1] - r_list[0]
@@ -705,12 +705,12 @@ def ring_wiener(meas, psf_roft, reg=1e-2, device=None ):
     
     H = torch.zeros((num_radii, num_radii), dtype=torch.complex64)
     X_fft = torch.zeros((num_angle, num_radii), dtype=torch.complex64)
-    # integration_area_list = torch.tensor((r_list * dr * dtheta)[None,:]).to(device=device, dtype=torch.complex64)
+    integration_area_list = torch.tensor((r_list * dr * dtheta)[None,:]).to(device=device, dtype=torch.complex64)
     
     for index_angle in range(num_angle):
         Y = meas_fft[index_angle, :].to(device)
         H = (psf_roft[:, index_angle, :] + 1j * psf_roft[:, num_angle//2 + index_angle, :]).to(device)
-        # H = H * integration_area_list
+        H = H * integration_area_list
         
         # linear least-squares solving
         HtH = torch.matmul(H.t(), H)  # Shape: (512, 512)
